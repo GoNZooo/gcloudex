@@ -2,7 +2,7 @@ defmodule GCloudex.CloudStorage.Client do
   alias HTTPoison, as: HTTP
   alias GCloudex.Auth, as: Auth
 
-  @type params :: [{String.t(), String.t()}] | Keyword.t() 
+  @type params :: [{String.t(), String.t()}] | Keyword.t()
 
   def project do
     GCloudex.get_project_id()
@@ -401,7 +401,7 @@ defmodule GCloudex.CloudStorage.Client do
        [
          # <-- MAGIC - don't ask why
          {"name", "", [{"Content-Type", "application/json"}]},
-         {:file, filepath, {"form-data", []}, [{"Content-Type", content_type}]}
+         {:file, filepath, {"", []}, [{"Content-Type", content_type}]}
        ]}
 
     params = build_query_params([{"uploadType", "multipart"}, {"name", bucket_path}])
