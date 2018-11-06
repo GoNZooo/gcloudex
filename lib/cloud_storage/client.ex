@@ -2,7 +2,7 @@ defmodule GCloudex.CloudStorage.Client do
   alias HTTPoison, as: HTTP
   alias GCloudex.Auth, as: Auth
 
-  @type params :: [{String.t(), String.t()}] | Keyword.t() 
+  @type params :: [{String.t(), String.t()}] | Keyword.t()
 
   def project do
     GCloudex.get_project_id()
@@ -399,9 +399,16 @@ defmodule GCloudex.CloudStorage.Client do
     body =
       {:multipart,
        [
-         # <-- MAGIC - don't ask why
+         # This request does not follow the official docs from Google
+         # https://cloud.google.com/storage/docs/json_api/v1/how-tos/multipart-upload
+         # Few of the problems with it:
+         # 1. The Content-Type is "multipart/form-data" instead of "multipart/related"
+         # 2. The "name" is not passed inside a JSON object as the docs state
+         # 3. Each multipart segment has "Content-Disposition" and "Content-Length" headers
+         # which are not matching the docs
+         # I am tired of figthing Hackney and I wish we had a better http lib based on libcurl or something else.
          {"name", "", [{"Content-Type", "application/json"}]},
-         {:file, filepath, {"form-data", []}, [{"Content-Type", content_type}]}
+         {:file, filepath, {"", []}, [{"Content-Type", content_type}]}
        ]}
 
     params = build_query_params([{"uploadType", "multipart"}, {"name", bucket_path}])
